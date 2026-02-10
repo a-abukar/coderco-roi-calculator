@@ -1,0 +1,19 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Local env files (not used by this project, but safe to ignore)
+.env
+.env.*
+
+# Vercel
+.vercel/
+
+

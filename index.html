@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CoderCo ROI Calculator</title>
+    <meta
+      name="description"
+      content="Estimate payback time and ROI for joining CoderCo DevOps Academy based on your current salary and a typical outcome (£55k after 6–12 months)."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="header__inner">
+          <div class="brand">
+            <img
+              class="brand__logo"
+              src="./assets/coderco-logo-white.png"
+              alt="CoderCo"
+              width="180"
+              height="44"
+            />
+            <div class="brand__meta">
+              <div class="brand__title">ROI Calculator</div>
+              <div class="brand__subtitle">
+                A quick estimate of payback time + 1–3 year ROI (using typical outcomes)
+              </div>
+            </div>
+          </div>
+
+          <a class="header__cta" href="https://www.skool.com/coderco" target="_blank" rel="noreferrer">
+            Visit CoderCo on Skool
+          </a>
+        </div>
+      </header>
+
+      <main class="main">
+        <section class="card">
+          <h2 class="card__title">Your estimate</h2>
+          <p class="card__hint">
+            Fill in one number (your current salary) and pick a plan. By default, we’ll use the typical outcome range:
+            <strong>£55k after 6–12 months</strong>.
+          </p>
+
+          <form class="grid" id="roiForm" novalidate>
+            <div class="step field--wide">
+              <div class="step__title">1) Where are you right now?</div>
+              <div class="grid grid--tight">
+                <div class="field">
+                  <label for="currentSalary">Current annual salary (GBP £)</label>
+                  <input
+                    id="currentSalary"
+                    name="currentSalary"
+                    type="number"
+                    min="0"
+                    step="100"
+                    inputmode="numeric"
+                    placeholder="e.g. 28000"
+                    required
+                  />
+                  <div class="field__help">Before tax. Use your best estimate.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="step field--wide">
+              <div class="step__title">2) What outcome do you want to model?</div>
+
+              <div class="choice">
+                <label class="choice__row">
+                  <input type="radio" name="outcomeMode" id="outcomeTypical" value="TYPICAL" checked />
+                  <span>
+                    <strong>Typical outcome (Premium)</strong>: £55k after 6–12 months
+                    <span class="muted"> (job-ready transformation)</span>
+                  </span>
+                </label>
+                <label class="choice__row">
+                  <input type="radio" name="outcomeMode" id="outcomeCustom" value="CUSTOM" />
+                  <span><strong>I want to enter my own target salary</strong></span>
+                </label>
+              </div>
+
+              <div class="grid grid--tight" id="customTargetWrap" hidden>
+                <div class="field">
+                  <label for="targetSalary">Your target annual salary (GBP £)</label>
+                  <input
+                    id="targetSalary"
+                    name="targetSalary"
+                    type="number"
+                    min="0"
+                    step="100"
+                    inputmode="numeric"
+                    placeholder="e.g. 57500"
+                  />
+                  <div class="field__help">Only used if you pick “enter my own target”.</div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="monthsToOutcome">When do you expect to reach that salary?</label>
+                <div class="range">
+                  <input id="monthsToOutcome" name="monthsToOutcome" type="range" min="6" max="12" step="1" value="9" />
+                  <div class="range__value" aria-live="polite">
+                    <span id="monthsToOutcomeLabel">9</span> months
+                  </div>
+                </div>
+                <div class="field__help">
+                  We’ll assume your salary uplift starts after this point (you said typical outcomes happen in
+                  <strong>6–12 months</strong>).
+                </div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="step field--wide">
+              <div class="step__title">3) Choose the plan you’re considering</div>
+
+              <div class="plans" role="radiogroup" aria-label="Choose a plan">
+                <label class="plan">
+                  <input type="radio" name="plan" id="planMonthly" value="MONTHLY" checked />
+                  <div class="plan__body">
+                    <div class="plan__top">
+                      <div class="plan__name">Monthly (Standard)</div>
+                      <div class="plan__price">$199 / month</div>
+                    </div>
+                    <div class="plan__desc">
+                      Great if you want to start with fundamentals + weekly mentoring.
+                      <span class="muted">Full transformation requires Premium.</span>
+                    </div>
+                  </div>
+                </label>
+
+                <label class="plan">
+                  <input type="radio" name="plan" id="planAnnualUpfront" value="ANNUAL_UPFRONT" />
+                  <div class="plan__body">
+                    <div class="plan__top">
+                      <div class="plan__name">Annual upfront (Premium)</div>
+                      <div class="plan__price">$1999 one-time</div>
+                    </div>
+                    <div class="plan__desc">
+                      Full roadmap + projects + job prep (Premium tier).
+                    </div>
+                  </div>
+                </label>
+
+                <label class="plan">
+                  <input type="radio" name="plan" id="planInstallments" value="ANNUAL_INSTALLMENTS" />
+                  <div class="plan__body">
+                    <div class="plan__top">
+                      <div class="plan__name">Premium instalments</div>
+                      <div class="plan__price">$799 × 3 months</div>
+                    </div>
+                    <div class="plan__desc">
+                      Premium access paid over 3 instalments.
+                    </div>
+                  </div>
+                </label>
+              </div>
+
+              <div class="inlineNotice" id="planNotice">
+                <strong>Note:</strong> The £55k “typical outcome” estimate is designed for <strong>Premium</strong>
+                (full transformation). If you pick Monthly (Standard), you can still use the calculator, but the salary
+                outcome assumption may not apply.
+              </div>
+
+              <div class="field" id="monthsInProgramWrap">
+                <label for="monthsInProgram">How many months would you stay on monthly?</label>
+                <div class="range">
+                  <input id="monthsInProgram" name="monthsInProgram" type="range" min="1" max="12" step="1" value="9" />
+                  <div class="range__value" aria-live="polite">
+                    <span id="monthsInProgramLabel">9</span> months
+                  </div>
+                </div>
+                <div class="field__help">Used only for the Monthly plan.</div>
+              </div>
+            </div>
+
+            <div class="field field--wide">
+              <label for="otherCosts">Other one-off costs <span class="muted">(optional)</span></label>
+              <input id="otherCosts" name="otherCosts" type="number" min="0" step="1" inputmode="decimal" value="0" />
+              <div class="field__help">
+                Optional: exam fees, extra tools, hardware, etc. Enter in <strong>GBP (£)</strong>.
+              </div>
+            </div>
+
+            <details class="details field--wide">
+              <summary>Advanced (optional)</summary>
+              <div class="details__body">
+                <div class="field">
+                  <label for="usdToGbp">USD → GBP exchange rate (for price estimates)</label>
+                  <input
+                    id="usdToGbp"
+                    name="usdToGbp"
+                    type="number"
+                    min="0"
+                    step="0.0001"
+                    inputmode="decimal"
+                  />
+                  <div class="field__help">
+                    CoderCo pricing is in <strong>USD</strong> (e.g. $199/month). We show an estimated GBP equivalent
+                    using this rate so you don’t have to do conversions.
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            <div class="actions">
+              <button class="btn" type="button" id="recalculateBtn">Recalculate</button>
+              <button class="btn btn--ghost" type="button" id="resetBtn">Reset</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2 class="card__title">Results</h2>
+
+          <div class="resultActions">
+            <button class="btn btn--ghost btn--sm" type="button" id="copyLinkBtn">Copy shareable link</button>
+            <button class="btn btn--ghost btn--sm" type="button" id="copySummaryBtn">Copy summary</button>
+          </div>
+
+          <div class="results" id="results">
+            <div class="kpis">
+              <div class="kpi">
+                <div class="kpi__label">Annual salary uplift</div>
+                <div class="kpi__value" id="kpiUplift">—</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi__label">Estimated total investment</div>
+                <div class="kpi__value" id="kpiCost">—</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi__label">Payback time (after you reach the new salary)</div>
+                <div class="kpi__value" id="kpiPayback">—</div>
+              </div>
+              <div class="kpi">
+                <div class="kpi__label">Break-even from today</div>
+                <div class="kpi__value" id="kpiBreakeven">—</div>
+              </div>
+            </div>
+
+            <div class="table">
+              <div class="table__row table__row--head">
+                <div>Time horizon</div>
+                <div>Net gain (after costs)</div>
+                <div>ROI</div>
+              </div>
+              <div class="table__row">
+                <div>12 months from today</div>
+                <div id="net12">—</div>
+                <div id="roi12">—</div>
+              </div>
+              <div class="table__row">
+                <div>24 months from today</div>
+                <div id="net24">—</div>
+                <div id="roi24">—</div>
+              </div>
+              <div class="table__row">
+                <div>36 months from today</div>
+                <div id="net36">—</div>
+                <div id="roi36">—</div>
+              </div>
+            </div>
+
+            <details class="details">
+              <summary>Show how this is calculated</summary>
+              <div class="details__body" id="calcExplainer"></div>
+            </details>
+          </div>
+
+          <div class="notice">
+            <strong>Important:</strong> This calculator is educational only. CoderCo does not guarantee employment,
+            income, promotions, or specific outcomes — results depend on your effort and circumstances.
+            <span class="muted">Refund windows in the T&Cs: monthly 48 hours, annual 7 days.</span>
+          </div>
+        </section>
+
+        <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+        <footer class="footer">
+          <img
+            class="footer__logo"
+            src="./assets/coderco-logo-full-on-light.png"
+            alt="CoderCo"
+            width="220"
+            height="54"
+          />
+          <div class="footer__meta">
+            Built from the CoderCo knowledge base (offer + T&Cs). Update pricing presets if your plans change.
+          </div>
+        </footer>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
+
+
