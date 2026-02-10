@@ -49,6 +49,8 @@ const els = {
   kpiPayback: document.getElementById('kpiPayback'),
   kpiBreakeven: document.getElementById('kpiBreakeven'),
 
+  verdict: document.getElementById('verdict'),
+
   net12: document.getElementById('net12'),
   roi12: document.getElementById('roi12'),
   net24: document.getElementById('net24'),
@@ -58,6 +60,13 @@ const els = {
 
   calcExplainer: document.getElementById('calcExplainer'),
 };
+
+// Apply positive/negative color class to a value element
+function colorValue(el, value) {
+  el.classList.remove('val--pos', 'val--neg');
+  if (Number.isFinite(value) && value > 0) el.classList.add('val--pos');
+  else if (Number.isFinite(value) && value < 0) el.classList.add('val--neg');
+}
 
 const PRICING_USD = {
   monthly: 199,
@@ -382,20 +391,67 @@ function render() {
   const money = (v) => formatMoney(v, state.currency);
 
   function renderSingle(single) {
-    // KPIs
+    // KPIs with color coding
     els.kpiUplift.textContent = money(single.uplift);
-    els.kpiCost.textContent = `${money(single.totalCostGbp)} (priced in USD, estimated at $1 ≈ £${state.usdToGbp.toFixed(2)})`;
+    colorValue(els.kpiUplift, single.uplift);
+
+    els.kpiCost.textContent = money(single.totalCostGbp);
+    els.kpiCost.classList.remove('val--pos', 'val--neg');
+
     els.kpiPayback.textContent = single.paybackAfterTarget === null ? '—' : formatMonths(single.paybackAfterTarget);
+    els.kpiPayback.classList.remove('val--pos', 'val--neg');
+
     els.kpiBreakeven.textContent = single.breakEvenFromToday === null ? '—' : formatMonths(single.breakEvenFromToday);
+    els.kpiBreakeven.classList.remove('val--pos', 'val--neg');
 
     function renderHorizon(netEl, roiEl, h) {
       netEl.textContent = money(h.net);
       roiEl.textContent = h.roi === null ? '—' : formatPercent(h.roi);
+      colorValue(netEl, h.net);
+      colorValue(roiEl, h.roi);
     }
 
     renderHorizon(els.net12, els.roi12, single.h12);
     renderHorizon(els.net24, els.roi24, single.h24);
     renderHorizon(els.net36, els.roi36, single.h36);
+
+    // Verdict
+    if (els.verdict) {
+      const hasData = Number.isFinite(single.uplift) && single.uplift > 0;
+      if (hasData) {
+        els.verdict.hidden = false;
+        const roi36 = single.h36.roi;
+        const payback = single.paybackAfterTarget;
+        const net36 = single.h36.net;
+
+        let verdictText = '';
+        let verdictTone = 'neutral'; // 'positive', 'strong', 'neutral'
+
+        if (Number.isFinite(roi36) && roi36 > 2) {
+          verdictTone = 'strong';
+          verdictText = `At 3 years, you'd be up ${money(net36)} — a ${formatPercent(roi36)} return on a ${money(single.totalCostGbp)} investment.`;
+          if (Number.isFinite(payback) && payback < 3) {
+            verdictText += ` You'd make your money back in under ${Math.ceil(payback)} months.`;
+          } else if (Number.isFinite(payback) && payback < 1) {
+            verdictText += ` You'd make your money back in ${Math.max(1, Math.ceil(payback * 30))} days.`;
+          }
+        } else if (Number.isFinite(roi36) && roi36 > 0) {
+          verdictTone = 'positive';
+          verdictText = `At 3 years, you'd be up ${money(net36)} — a ${formatPercent(roi36)} return.`;
+        } else if (Number.isFinite(net36) && net36 < 0) {
+          verdictTone = 'neutral';
+          verdictText = `At current inputs, costs outweigh the projected salary uplift within 3 years. Try adjusting your target salary or plan.`;
+        } else {
+          verdictTone = 'neutral';
+          verdictText = 'Enter your salary above to see your projected return.';
+        }
+
+        els.verdict.textContent = verdictText;
+        els.verdict.className = 'verdict verdict--' + verdictTone;
+      } else {
+        els.verdict.hidden = true;
+      }
+    }
 
     const expl = [];
     if (single.issues.length) {
